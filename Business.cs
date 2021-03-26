@@ -16,15 +16,18 @@ namespace Masivian
         private readonly DynamoUtils dynamouUtils;
         private const string OK = "OK";
         private const string ERROR = "ERROR";
+
         public Business(ILogger<RouletteController> logger, IAmazonDynamoDB dynamoDBClient)
         {
             _logger = logger;
             dynamouUtils = new DynamoUtils(dynamoDBClient);
         }
+
         async public Task<string> CreateRoulette()
         {
             return await dynamouUtils.CreateRoulette();
         }
+
         async public Task<string> OpenRoulette(string rouletteId)
         {
             var roulette = await GetRoulette(rouletteId: rouletteId);
@@ -35,6 +38,7 @@ namespace Masivian
 
             return OK;
         }
+
         async public Task<string> ToBetRoulette(Player player)
         {
             var roulette = await GetRoulette(rouletteId: player.RouletteId);
@@ -50,6 +54,7 @@ namespace Masivian
 
             return ERROR;
         }
+
         async public Task<IEnumerable<Player>> CloseRoulette(string rouletteId)
         {
             var roulette = await GetRoulette(rouletteId: rouletteId);
@@ -69,6 +74,7 @@ namespace Masivian
 
             return playerList;
         }
+
         async public Task<IEnumerable<Roulette>> ListRoulette()
         {
             return await dynamouUtils.ListRoulette();
@@ -77,15 +83,16 @@ namespace Masivian
         {
             return await dynamouUtils.GetPlayersByRouletteId(rouletteId: rouletteId);
         }
+
         async private Task<Roulette> GetRoulette(string rouletteId)
         {
             return await dynamouUtils.GetRoulette(rouletteId: rouletteId);
         }
+
         private void SelectWinner(IEnumerable<Player> players)
         {
             var numberWinner = new Random().Next(0, 36);
             var isBlakColor = numberWinner % 2 == 0;
-
             foreach (var player in players)
             {
                 if (player.Number == numberWinner)
@@ -93,7 +100,6 @@ namespace Masivian
                     player.Winner = true;
                     continue;
                 }
-
                 if (player.IsColor)
                 {
                     var isBlackColorPlayer = player.Number % 2 == 0;
@@ -104,6 +110,7 @@ namespace Masivian
                 }
             }
         }
+
         private void SetPrice(IEnumerable<Player> players)
         {
             foreach (var player in players)
@@ -115,6 +122,7 @@ namespace Masivian
                 }
             }
         }
+
         async private void SaveGame(IEnumerable<Player> players)
         {
             foreach (var player in players)

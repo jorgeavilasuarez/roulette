@@ -15,10 +15,12 @@ namespace Masivian
         private const string OPEN = "Open";
         private const string CLOSED = "Closed";
         private readonly IAmazonDynamoDB _dynamoDBClient;
+        
         public DynamoUtils(IAmazonDynamoDB dynamoDBClient)
         {
             _dynamoDBClient = dynamoDBClient;
         }
+
         async public Task<string> CreateRoulette()
         {
             Guid myuuid = Guid.NewGuid();
@@ -28,17 +30,19 @@ namespace Masivian
                 { "Id", new AttributeValue(myuuidAsString) },
                 { "State", new AttributeValue("created") },
             };
-
             var rouleteRequest = new PutItemRequest(tableName: ROULETTE, fields);
             await _dynamoDBClient.PutItemAsync(rouleteRequest);
 
             return myuuidAsString;
         }
+
         async public Task<bool> OpenRoulette(Roulette roulette)
         {
             await SaveRouletteState(roulette: roulette, state: OPEN);
+
             return true;
         }
+
         async public Task<Roulette> GetRoulette(string rouletteId)
         {
             var key = new Dictionary<string, AttributeValue>
@@ -60,6 +64,7 @@ namespace Masivian
                 State = rouleteItem.Item["State"].S
             };
         }
+
         async public Task<bool> SaveBetGame(Player player)
         {
             await _dynamoDBClient.PutItemAsync(new PutItemRequest(tableName: PLAYERS,
@@ -74,11 +79,13 @@ namespace Masivian
                 }));
             return true;
         }
+
         async public Task<bool> CloseRoulette(Roulette roulette)
         {
             await SaveRouletteState(roulette: roulette, state: CLOSED);
             return true;
         }
+
         async public Task<bool> SaveRouletteState(Roulette roulette, string state)
         {
             var key = GetKey(roulette);
@@ -90,6 +97,7 @@ namespace Masivian
                  ));
             return true;
         }
+
         async public Task<IEnumerable<Roulette>> ListRoulette()
         {
             var rouleteItems = await _dynamoDBClient.ScanAsync(new ScanRequest(ROULETTE));
@@ -100,6 +108,7 @@ namespace Masivian
                     State = item["State"].S
                 });
         }
+
         async public Task<IEnumerable<Player>> GetPlayersByRouletteId(string rouletteId)
         {
             QueryRequest qRequest = new QueryRequest
@@ -114,7 +123,6 @@ namespace Masivian
                 KeyConditionExpression = "#Id = :qId",
                 ProjectionExpression = "#Id, UserId, IsColor, Price, Winner, Ammount, #Num"
             };
-
             var rouleteItems = await _dynamoDBClient.QueryAsync(qRequest);
 
             return rouleteItems.Items
@@ -129,6 +137,7 @@ namespace Masivian
                     Winner = item["Winner"].BOOL,
                 });
         }
+
         private Dictionary<string, AttributeValueUpdate> GetState(string state)
         {
             return new Dictionary<string, AttributeValueUpdate>
@@ -139,6 +148,7 @@ namespace Masivian
                 }
             };
         }
+
         private Dictionary<string, AttributeValue> GetKey(Roulette roulette)
         {
             return new Dictionary<string, AttributeValue>
