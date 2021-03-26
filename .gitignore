@@ -2,4 +2,6 @@
 # Este archivo .gitignore ha sido creado automáticamente por Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/Masivian/v16/Server/sqlite3
+.vs
+bin
+obj

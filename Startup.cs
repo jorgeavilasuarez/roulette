@@ -26,9 +26,15 @@ namespace Masivian
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var enumLogLevel = GetLogLevelFromEnviroment();
             services.AddControllers();
-            services.AddDefaultAWSOptions(Configuration.GetAWSOptions("service1"));            
+            services.AddDefaultAWSOptions(Configuration.GetAWSOptions("service1"));
             services.AddAWSService<IAmazonDynamoDB>();
+            services.AddLogging(config =>
+            {
+                config.AddAWSProvider(Configuration.GetAWSLoggingConfigSection());
+                config.SetMinimumLevel(LogLevel.Debug);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,6 +55,12 @@ namespace Masivian
             {
                 endpoints.MapControllers();
             });
+        }
+        private LogLevel GetLogLevelFromEnviroment()
+        {
+            var logLevel = Environment.GetEnvironmentVariable("LOG_LEVEL") ?? "Debug";
+            var enumLogLevel = Enum.Parse<LogLevel>(logLevel);
+            return enumLogLevel;
         }
     }
 }

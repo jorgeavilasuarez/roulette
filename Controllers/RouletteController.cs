@@ -27,19 +27,22 @@ namespace Masivian.Controllers
         [HttpPost("create")]
         async public Task<string> Create()
         {
+            _logger.LogDebug("Creating roulette");
             return await business.CreateRoulette();
         }
 
         [HttpPost("open")]
         async public Task<string> OpenRoulette(string rouletteId)
         {
+            _logger.LogDebug($"Opening roulette: {rouletteId}");
             return await business.OpenRoulette(rouletteId: rouletteId);
         }
 
         [HttpPost("tobet")]
         async public Task<string> ToBet([FromBody]Player player)
-        {
+        {            
             var isUserAdded = AddUserId(player);
+            _logger.LogDebug($"To bet Player: {player.UserId}");
             if (isUserAdded)
             {
                 return await business.ToBetRoulette(player: player);
@@ -51,16 +54,18 @@ namespace Masivian.Controllers
         [HttpPost("close")]
         async public Task<IEnumerable<Player>> Close(string rouletteId)
         {
+            _logger.LogDebug($"Closing roulette: {rouletteId}");
             return await business.CloseRoulette(rouletteId: rouletteId);
         }
 
         [HttpGet("list")]
         async public Task<IEnumerable<Roulette>> List()
         {
+            _logger.LogDebug($"Listing roulettes");
             return await business.ListRoulette();
         }
         private bool AddUserId(Player player)
-        {
+        {            
             var hasUserId = Request.Headers.ContainsKey(USERID);
             if (!hasUserId)
             {
